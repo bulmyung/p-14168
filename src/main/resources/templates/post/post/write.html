@@ -1,0 +1,28 @@
+<ul style="color: red;"
+th:utext="${errorMessage}">
+
+</ul>
+
+<form method="POST" action="doWrite">
+    <input type="text" name="title"
+placeholer="제목"
+           th:value="${writeForm.title}" autofocus>
+    <br>
+    <textarea name="content"
+              placeholder="내용"
+    th:text="${writeForm.content}"></textarea>
+    <br>
+    <input type="submit" value="작성">
+</form>
+
+<script>
+    const forms =
+        document.querySelectorAll('form');
+    const lasForm = forms[forms.length - 1];
+    const errorFieldName =
+        lastForm.previousElementSibling?.querySelector('li')?.dataset?.errorFieldName || '';
+
+    if (errorFieldName.length > 0) {
+        lastForm[errorFieldName].focus();
+    }
+</script>
