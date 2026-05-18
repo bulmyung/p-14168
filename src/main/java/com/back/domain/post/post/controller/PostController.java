@@ -9,7 +9,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.BindingResult;
-import org.springframework.validation.FieldError;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -18,6 +17,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
+import java.util.stream.Collectors;
+
 @Controller
 @RequiredArgsConstructor
 @Validated
@@ -25,12 +26,16 @@ public class PostController {
     private final PostService postService;
 
     private String getWriteFromHtml() {
-        return getWriteFormHtml("", "", "", "");
+        return getWriteFormHtml("", "", "");
     }
 
-    private String getWriteFormHtml(String errorFieldName, String errorMessage, String title, String content) {
+    private String getWriteFormHtml(String errorMessage, String title, String content) {
         return """
-                <div style="color:red;">%s</div>
+                <ul style="color: red;">
+                
+                    %s
+                </ul>
+                
                 <form method="POST" action="doWrite">
                     <input type="text" name="title" placeholder="제목" value="%s" autofocus>
                     <br>
@@ -41,32 +46,33 @@ public class PostController {
                 
                 
                 <script>
-                const errorFieldName = '%s';
-                if ( errorFieldName.length > 0 )
-                {
+                
                 const forms = document.querySelectorAll('form');
                 const lastForm = forms[forms.length - 1];
+                const errorFieldName = lastForm.previousElementSibling?.querySelector('li')?.dataset?.errorFieldName || '';
+                
+                if (errorFieldName.length > 0 ){
                 lastForm[errorFieldName].focus();
                 }
                 </script>
-                """.formatted(errorMessage, title, content, errorFieldName);
+                """.formatted(errorMessage, title, content);
     }
 
     @GetMapping("/posts/write")
-    @ResponseBody
+
     public String showWrite() {
-        return getWriteFromHtml();
+        return "post/post/write";
     }
 
 
     @AllArgsConstructor
     @Getter
     public static class WriteForm {
-        @NotBlank(message = "제목을 입력해주세요.")
-        @Size(min = 2, max = 20, message = "제목은 2자 이상, 20자 이하로 입력가능하니다.")
+        @NotBlank(message = "01-제목을 입력해주세요.")
+        @Size(min = 2, max = 20, message = "02-제목은 2자 이상, 20자 이하로 입력가능하니다.")
         private String title;
-        @NotBlank(message = "내용을 입력해주세요.")
-        @Size(min = 2, max = 20, message = "내용은 2지 이상, 20자 이하로 입력가능합니다.")
+        @NotBlank(message = "03-내용을 입력해주세요.")
+        @Size(min = 2, max = 20, message = "04-내용은 2지 이상, 20자 이하로 입력가능합니다.")
         private String content;
     }
 
@@ -78,12 +84,17 @@ public class PostController {
             BindingResult bindingResult
     ) {
         if (bindingResult.hasErrors()) {
-            FieldError fieldError = bindingResult.getFieldError();
+            String errorFieldName = "title";
+            String errorMessage = bindingResult
+                    .getFieldErrors()
+                    .stream()
+                    .map(fieldError -> (fieldError.getField() + "-" + fieldError.getDefaultMessage()).split("-",3))
+                    .map(field -> "<!--%s--><li data-error-field-name=\"%s\">%s</li>".formatted(field[1],field[0],field[2]))
+                    .sorted()
+                    .collect(Collectors.joining("\n"));
 
-            String errorFieldName = fieldError.getField();
-            String errorMessage = fieldError.getDefaultMessage();
 
-            return getWriteFormHtml(errorFieldName, errorMessage, form.getTitle(), form.getContent());
+            return getWriteFormHtml(errorMessage, form.getTitle(), form.getContent());
         }
 
         Post post = postService.write(form.getTitle(), form.getContent());
