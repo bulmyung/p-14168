@@ -77,9 +77,13 @@ public class PostController {
 
     @GetMapping("/posts")
     @Transactional(readOnly = true)
-    @ResponseBody
-    public List<Post> showList() {
-        return postService.findAll();
+    public String showList(Model model) {
+        List<Post> posts = postService.findAll();
+
+        model.addAttribute("posts", posts);
+
+        return "post/post/list";
+
         }
 
 
