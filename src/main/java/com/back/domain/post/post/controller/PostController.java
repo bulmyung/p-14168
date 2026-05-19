@@ -19,8 +19,6 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
 
-import java.util.stream.Collectors;
-
 @Controller
 @RequiredArgsConstructor
 @Validated
@@ -56,20 +54,8 @@ public class PostController {
             BindingResult bindingResult,
             Model model
     ) {
-        if (bindingResult.hasErrors()) {
-            String errorFieldName = "title";
-            String errorMessage = bindingResult
-                    .getFieldErrors()
-                    .stream()
-                    .map(fieldError -> (fieldError.getField() + "-" + fieldError.getDefaultMessage()).split("-", 3))
-                    .map(field -> "<!--%s--><li data-error-field-name=\"%s\">%s</li>".formatted(field[1], field[0], field[2]))
-                    .sorted()
-                    .collect(Collectors.joining("\n"));
+        if (bindingResult.hasErrors()) return "post/post/write";
 
-            model.addAttribute("errorMessage", errorMessage);
-            return "post/post/write";
-
-        }
 
         Post post = postService.write(form.getTitle(), form.getContent());
 
