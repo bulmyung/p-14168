@@ -2,15 +2,8 @@
 
 
 <form method="POST" action="doWrite" th:object="${form}">
-    <ul th:if="${#fields.hasAnyErrors()}" style="color: red;">
-       <li
-               th:each="err : ${#fields.allErrors().stream().sorted()}"
-               th:with="errStrs = ${err.split('-', 3)},
-                    errFieldName = ${errStrs[1]},
-                    errMsg = ${errStrs[2]}"
-               th:data-error-field-name="${errFieldName}"
-               th:text="${errMsg}"></li>
-    </ul>
+    <div th:replace="~{form_errors :: formErrorsFragment}"></div>
+
     <div>
 
         <label for="title">제목</label><br>
@@ -25,4 +18,6 @@ placeholer="제목"
     </div>
     <input type="submit" value="작성">
 </form>
+
+
 
