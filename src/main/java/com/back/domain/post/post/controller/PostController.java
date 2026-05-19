@@ -1,5 +1,6 @@
 package com.back.domain.post.post.controller;
 
+import com.back.domain.post.post.entity.Post;
 import com.back.domain.post.post.service.PostService;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
@@ -7,14 +8,15 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 
 @Controller
@@ -54,11 +56,38 @@ public class PostController {
     ) {
         if (bindingResult.hasErrors()) return "post/post/write";
 
+        Post post = postService.write(form.getTitle(), form.getContent());
 
-        postService.write(form.getTitle(), form.getContent());
-
-        return "redirect:/posts/write";
-
+        return "redirect:/posts/" + post.getId();
     }
+
+
+    @GetMapping("/posts/{id}")
+    @Transactional(readOnly = true)
+    public String showDetail(
+            @PathVariable int id,
+            Model model
+    ) {
+        Post post = postService.findById(id).get();
+        model.addAttribute("post", post);
+
+        return "post/post/detail";
+    }
+
+
+    @GetMapping("/posts")
+    @Transactional(readOnly = true)
+    @ResponseBody
+    public List<Post> showList() {
+        return postService.findAll();
+        }
+
+
+    @GetMapping("/posts/")
+    public String redirectToList() {
+        return "redirect:/posts";
+        }
+
+
 }
 
