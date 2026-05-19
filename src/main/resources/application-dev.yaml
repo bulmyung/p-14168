@@ -1,4 +1,7 @@
 spring:
+  tyymeleaf:
+    cache: false
+    prefix: file:src/main/resources/templates/
   datasource:
     url: jdbc:h2:./db_dev;MODE=MySQL;AUTO_SERVER=TRUE
     username: sa

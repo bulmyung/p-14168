@@ -1,3 +1,5 @@
+<h1 th:text="${sideName}"></h1>
+
 <ul style="color: red;"
 th:utext="${errorMessage}">
 
@@ -6,11 +8,11 @@ th:utext="${errorMessage}">
 <form method="POST" action="doWrite">
     <input type="text" name="title"
 placeholer="제목"
-           th:value="${writeForm.title}" autofocus>
+           th:value="${form.title}" autofocus>
     <br>
     <textarea name="content"
               placeholder="내용"
-    th:text="${writeForm.content}"></textarea>
+    th:text="${form.content}"></textarea>
     <br>
     <input type="submit" value="작성">
 </form>
