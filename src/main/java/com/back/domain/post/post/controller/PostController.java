@@ -1,6 +1,5 @@
 package com.back.domain.post.post.controller;
 
-import com.back.domain.post.post.entity.Post;
 import com.back.domain.post.post.service.PostService;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
@@ -8,7 +7,6 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -47,21 +45,19 @@ public class PostController {
         return "post/post/write";
     }
 
-    @PostMapping("/posts/doWrite")
+    @PostMapping("/posts/write")
     @Transactional
     public String write(
             @ModelAttribute("form") @Valid WriteForm form,
-            BindingResult bindingResult,
-            Model model
+            BindingResult bindingResult
+
     ) {
         if (bindingResult.hasErrors()) return "post/post/write";
 
 
-        Post post = postService.write(form.getTitle(), form.getContent());
+        postService.write(form.getTitle(), form.getContent());
 
-        model.addAttribute("post", post);
-
-        return "post/post/writeDone";
+        return "redirect:/posts/write";
 
     }
 }
