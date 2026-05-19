@@ -6,6 +6,7 @@ import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
@@ -29,6 +30,52 @@ public class PostController {
     public String siteName() {
         return "커뮤니티 사이트 A";
     }
+
+@AllArgsConstructor
+@Getter
+@Setter
+public static class ModityForm {
+        @NotBlank(message = "01-title-제목을 입력해주세요.")
+        @Size(min = 2, max = 20, message = "02-title-제목은 2자 이상, 20자 이하로 입력가능합니다.")
+        private String title;
+        @NotBlank(message = "03-content-내용을 입력헤주세요.")
+        @Size(min =2, max = 20, message = "04-content-내용은 2자 이상, 20자 이하로 입력가능합니다.")
+        private String content;
+}
+
+@GetMapping("/posts/{id}/modify")
+@Transactional(readOnly = true)
+public String showModiry(
+        @PathVariable int id,
+        @ModelAttribute("form") ModityForm form, Model model
+) {
+        Post post = postService.findById(id).get();
+
+        model.addAttribute("post", post);
+        form.setTitle(post.getTitle());
+        form.setContent(post.getContent());
+
+        return "post/post/modify";
+}
+
+@PostMapping("/posts/{id}/modify")
+@Transactional
+public String modify(
+        @PathVariable int id,
+        @ModelAttribute("form") @Valid ModityForm form,
+        BindingResult bindingResult,
+        Model model
+) {
+        Post post = postService.findById(id).get();
+        model.addAttribute("post", post);
+
+        if (bindingResult.hasErrors()) return "post/post/modify";
+
+        postService.modify(post, form.getTitle(), form.getContent());
+
+        return "redirect:/posts/" + post.getId();
+    }
+
 
 
     @AllArgsConstructor

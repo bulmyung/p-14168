@@ -16,5 +16,10 @@ public class Post extends BaseEntity {
         this.title = title;
         this.content = content;
     }
+
+    public void modify(String title, String content) {
+        this.title = title;
+        this.content = content;
+    }
 }
 
