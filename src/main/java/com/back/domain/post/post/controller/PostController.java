@@ -2,11 +2,9 @@ package com.back.domain.post.post.controller;
 
 import com.back.domain.post.post.entity.Post;
 import com.back.domain.post.post.service.PostService;
+import com.back.domain.post.postComment.controller.PostCommentController;
 import jakarta.validation.Valid;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import lombok.Setter;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
@@ -31,29 +29,29 @@ public class PostController {
         return "커뮤니티 사이트 A";
     }
 
-@AllArgsConstructor
-@Getter
-@Setter
-public static class ModityForm {
+
+public record ModifyForm(
         @NotBlank(message = "01-title-제목을 입력해주세요.")
         @Size(min = 2, max = 20, message = "02-title-제목은 2자 이상, 20자 이하로 입력가능합니다.")
-        private String title;
+        String title,
         @NotBlank(message = "03-content-내용을 입력헤주세요.")
         @Size(min =2, max = 20, message = "04-content-내용은 2자 이상, 20자 이하로 입력가능합니다.")
-        private String content;
+        String content
+) {
+
 }
 
 @GetMapping("/posts/{id}/modify")
 @Transactional(readOnly = true)
 public String showModiry(
         @PathVariable int id,
-        @ModelAttribute("form") ModityForm form, Model model
+        Model model
 ) {
         Post post = postService.findById(id).get();
 
         model.addAttribute("post", post);
-        form.setTitle(post.getTitle());
-        form.setContent(post.getContent());
+        model.addAttribute("form", new ModifyForm(post.getTitle(), post.getContent()));
+
 
         return "post/post/modify";
 }
@@ -62,7 +60,7 @@ public String showModiry(
 @Transactional
 public String modify(
         @PathVariable int id,
-        @ModelAttribute("form") @Valid ModityForm form,
+        @ModelAttribute("form") @Valid ModifyForm form,
         BindingResult bindingResult,
         Model model
 ) {
@@ -71,22 +69,23 @@ public String modify(
 
         if (bindingResult.hasErrors()) return "post/post/modify";
 
-        postService.modify(post, form.getTitle(), form.getContent());
+        postService.modify(post, form.title, form.content);
 
         return "redirect:/posts/" + post.getId();
     }
 
 
 
-    @AllArgsConstructor
-    @Getter
-    public static class WriteForm {
+    public record WriteForm (
         @NotBlank(message = "01-title-제목을 입력해주세요.")
         @Size(min = 2, max = 20, message = "02-title-제목은 2자 이상, 20자 이하로 입력가능하니다.")
-        private String title;
+        String title,
         @NotBlank(message = "03-content-내용을 입력해주세요.")
         @Size(min = 2, max = 20, message = "04-content-내용은 2지 이상, 20자 이하로 입력가능합니다.")
-        private String content;
+        String content
+    ) {
+
+
     }
 
     @GetMapping("/posts/write")
@@ -103,7 +102,7 @@ public String modify(
     ) {
         if (bindingResult.hasErrors()) return "post/post/write";
 
-        Post post = postService.write(form.getTitle(), form.getContent());
+        Post post = postService.write(form.title, form.content);
 
         return "redirect:/posts/" + post.getId();
     }

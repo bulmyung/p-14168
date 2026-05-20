@@ -21,12 +21,13 @@ import org.springframework.web.bind.annotation.PostMapping;
 public class PostCommentController {
     private final PostService postService;
 
-    @AllArgsConstructor
-    @Getter
-    public static class ModifyForm {
+
+    public record ModifyForm(
         @NotBlank
         @Size(min = 2, max = 100)
-        private String content;
+        String content
+    ) {
+
     }
 
     @GetMapping("/posts/{postId}/comments/{id}/modify")
@@ -55,19 +56,19 @@ public class PostCommentController {
         Post post = postService.findById(postId).get();
         PostComment postComment = post.findCommentById(id).get();
 
-        postService.modifyComment(postComment, modifyForm.getContent());
+        postService.modifyComment(postComment, modifyForm.content);
 
         return "redirect:/posts/" + postId;
     }
 
 
-    @AllArgsConstructor
-    @Getter
-    public static class WriteForm {
+    public record WriteForm(
     @NotBlank
     @Size(min = 2, max = 100)
-    private String content;
-}
+    String content
+    ) {
+
+    }
 
     @PostMapping("/posts/{postId}/comments/write")
     @Transactional
@@ -77,7 +78,7 @@ public class PostCommentController {
     ) {
         Post post = postService.findById(postId).get();
 
-        postService.writeComment(post, writeForm.getContent());
+        postService.writeComment(post, writeForm.content);
 
         return "redirect:/posts/" + postId;
         }
