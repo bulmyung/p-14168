@@ -3,6 +3,7 @@ package com.back.domain.post.post.controller;
 import com.back.domain.post.post.entity.Post;
 import com.back.domain.post.post.service.PostService;
 import com.back.domain.post.postComment.controller.PostCommentController;
+import com.back.domain.post.postComment.entity.PostComment;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
@@ -132,6 +133,22 @@ public String modify(
     public String redirectToList() {
         return "redirect:/posts";
         }
+
+
+    @DeleteMapping("/posts/{id}/delete")
+    @Transactional
+    public String delete (
+            @PathVariable int id,
+            Model model
+    ) {
+
+        Post post = postService.findById(id).get();
+        model.addAttribute("post", post);
+
+        postService.delete(post);
+
+        return "redirect:/posts/write";
+    }
 
 
 }
