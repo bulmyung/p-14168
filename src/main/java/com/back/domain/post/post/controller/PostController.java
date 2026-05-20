@@ -56,7 +56,7 @@ public String showModiry(
         return "post/post/modify";
 }
 
-@PostMapping("/posts/{id}/modify")
+@PutMapping("/posts/{id}/modify")
 @Transactional
 public String modify(
         @PathVariable int id,
