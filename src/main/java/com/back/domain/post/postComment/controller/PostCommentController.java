@@ -13,6 +13,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PutMapping;
 
 @Controller
 @RequiredArgsConstructor
@@ -94,6 +95,6 @@ public class PostCommentController {
 
             postService.deleteComment(post, postComment);
 
-            return "redirect:/post/" + postId;
+            return "redirect:/posts/" + postId;
         }
 }
